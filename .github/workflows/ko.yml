@@ -27,6 +27,8 @@ jobs:
     - name: Test
       run: make test
 
+      # TODO installing a pre-built binary would probs be much faster than
+      # waiting 49s for it to build here.
     - name: Install ko
       run: go install github.com/google/ko@latest
 
