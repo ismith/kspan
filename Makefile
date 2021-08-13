@@ -56,11 +56,11 @@ generate: controller-gen
 
 # Build the docker image
 docker-build: test
-	docker build . -t ${IMG}
+	ko publish --local --base-import-paths --tags latest --platform=linux/amd64,linux/arm64 .
 
 # Push the docker image
 docker-push: docker-build
-	docker push ${IMG}
+	ko publish --base-import-paths --tags latest --platform=linux/amd64,linux/arm64 .
 
 # find or download controller-gen
 # download controller-gen if necessary
