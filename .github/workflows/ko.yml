@@ -27,10 +27,11 @@ jobs:
     - name: Test
       run: make test
 
-      # TODO installing a pre-built binary would probs be much faster than
-      # waiting 49s for it to build here.
     - name: Install ko
-      run: go install github.com/google/ko@latest
+      run: |
+        # go install github.com/google/ko@latest
+        curl -sL https://github.com/google/ko/releases/download/v0.8.3/ko_0.8.3_Linux_x86_64.tar.gz | tar -xzv ko || true
+        ./ko version # check that it installed; if not, this step will fail
 
     - name: Set tags
       id: tags
@@ -48,7 +49,7 @@ jobs:
 
     - name: Build docker image
       run: |
-        ko publish \
+        ./ko publish \
         --local \
         --base-import-paths \
         --tags ${{ steps.tags.outputs.tags }} \
@@ -59,7 +60,7 @@ jobs:
       if: startsWith( github.ref, 'refs/tags/' )
       run: |
         KO_DOCKER_REPO=ghcr.io/${{ github.repository }} \
-        ko publish \
+        ./ko publish \
         --base-import-paths \
         --tags ${{ steps.tags.outputs.tags }} \
         --platform=linux/amd64,linux/arm64 \
