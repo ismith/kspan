@@ -40,10 +40,10 @@ jobs:
         TAG_BASE="ghcr.io/${{ github.repository }}"
         set -euo pipefail
         set -x
-        TAGS="${TAG_BASE}/latest,${TAG_BASE}/${{ github.sha }}"
+        TAGS="${TAG_BASE}:latest,${TAG_BASE}:${{ github.sha }}"
         github_tag="$(echo ${{ github.ref }} | grep -o 'refs/tag/.*' || true | sed 's|refs/tag/||')"
         if [[ "${github_tag}" != "" ]]; then
-          TAGS="${TAGS},${TAG_BASE}/${github_tag}"
+          TAGS="${TAGS},${TAG_BASE}:${github_tag}"
         fi
         echo "::set-output tags=$TAGS"
 
