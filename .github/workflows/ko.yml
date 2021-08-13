@@ -41,7 +41,7 @@ jobs:
         set -euo pipefail
         set -x
         TAGS="${TAG_BASE}/latest,${TAG_BASE}/${{ github.sha }}"
-        github_tag="$(echo ${{ github.ref }} | grep -o 'refs/tag/.*' | sed 's|refs/tag/||')"
+        github_tag="$(echo ${{ github.ref }} | grep -o 'refs/tag/.*' || true | sed 's|refs/tag/||')"
         if [[ "${github_tag}" != "" ]]; then
           TAGS="${TAGS},${TAG_BASE}/${github_tag}"
         fi
