@@ -40,7 +40,7 @@ jobs:
         set -euo pipefail
         set -x
         TAGS="latest,${{ github.sha }}"
-        github_tag="$(echo ${{ github.ref }} | grep -o 'refs/tags/.*' | sed 's|refs/tags/||')"
+        github_tag="$(echo ${{ github.ref }} | sed -n '/refs\/tags\//p' | sed 's|refs/tags/||')"
         if [[ "${github_tag}" != "" ]]; then
           TAGS="${TAGS},${github_tag}"
         fi
