@@ -37,13 +37,12 @@ jobs:
       id: tags
       run: |
         # e.g., ismith/kspan
-        TAG_BASE="ghcr.io/${{ github.repository }}"
         set -euo pipefail
         set -x
-        TAGS="${TAG_BASE}:latest,${TAG_BASE}:${{ github.sha }}"
+        TAGS="latest,${{ github.sha }}"
         github_tag="$(echo ${{ github.ref }} | grep -o 'refs/tag/.*' || true | sed 's|refs/tag/||')"
         if [[ "${github_tag}" != "" ]]; then
-          TAGS="${TAGS},${TAG_BASE}:${github_tag}"
+          TAGS="${TAGS},${github_tag}"
         fi
         echo "::set-output name=tags::$TAGS"
 
