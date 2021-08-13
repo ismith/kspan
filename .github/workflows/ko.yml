@@ -1,9 +1,7 @@
+---
 name: Ko
 
-on:
-  - push
-  - pull_request
-  - create # tag
+on: [push, pull_request, create]  # create is for tags
 
 jobs:
 
@@ -44,14 +42,14 @@ jobs:
         if [[ "${github_tag}" != "" ]]; then
           TAGS="${TAGS},${TAG_BASE}/${github_tag}"
         fi
-      echo ":set-output tags=$TAGS"
+        echo "::set-output tags=$TAGS"
 
     - name: Build docker image
       run: |
         ko publish \
         --local \
         --base-import-paths \
-        --tags ${{ outputs.tags }} \
+        --tags ${{ steps.tags.outputs.tags }} \
         --platform=linux/amd64,linux/arm64 \
         .
 
