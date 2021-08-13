@@ -1,0 +1,66 @@
+name: Ko
+
+on:
+  - push
+  - pull_request
+  - create # tag
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+
+    - name: Lint
+      uses: golangci/golangci-lint-action@v2
+      with:
+          version: latest
+          args: --timeout=5m
+
+    - name: Build
+      run: make
+
+    - name: Test
+      run: make test
+
+    - name: Install ko
+      run: go install github.com/google/ko@latest
+
+    - name: Set tags
+      id: tags
+      run: |
+        # e.g., ismith/kspan
+        TAG_BASE="ghcr.io/${{ github.repository }}"
+        set -euo pipefail
+        set -x
+        TAGS="${TAG_BASE}/latest,${TAG_BASE}/${{ github.sha }}"
+        github_tag=$(echo ${{ github.ref }} | grep -o 'refs/tag/.*' | sed 's|refs/tag/||')
+        if [[ "${github_tag}" != "" ]]; then
+          TAGS="${TAGS},${TAG_BASE}/${github_tag}"
+        fi
+      echo ":set-output tags=$TAGS"
+
+    - name: Build docker image
+      run: |
+        ko publish \
+        --local \
+        --base-import-paths \
+        --tags ${{ outputs.tags }} \
+        --platform=linux/amd64,linux/arm64 \
+        .
+
+    - name: Push docker image if this build was triggered by a tag
+      if: startsWith( github.ref, 'refs/tags/' )
+      run: |
+        KO_DOCKER_REPO=ghcr.io/${{ github.repository }} \
+        ko publish \
+        --base-import-paths \
+        --tags ${{ steps.tags.outputs.tags }} \
+        --platform=linux/amd64,linux/arm64 \
+        .
